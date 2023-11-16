@@ -1,88 +1,76 @@
 #include "shell.h"
 
 /**
- *_eputs - To prints an input string
- * @str: The string to be printed
+ * print_error - prints error messages to standard error
+ * @vars: pointer to struct of variables
+ * @msg: message to print out
  *
- * Return: Nothing
+ * Return: void
  */
-int main()
+void print_error(vars_t *vars, char *msg)
 {
-void _eputs(char *str)
-{
-int i = 0;
+	char *count;
 
-if (!str)
-return;
-while (str[i] != '\0')
-{
-_eputchar(str[i]);
-i++;
-}
+	_puts2(vars->argv[0]);
+	_puts2(": ");
+	count = _uitoa(vars->count);
+	_puts2(count);
+	free(count);
+	_puts2(": ");
+	_puts2(vars->av[0]);
+	if (msg)
+	{
+		_puts2(msg);
+	}
+	else
+		perror("");
 }
 
 /**
- * _eputchar - will writes the character c to stderr
- * @c: The character to print
+ * _puts2 - prints a string to standard error
+ * @str: string to print
  *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * Return: void
  */
-int _eputchar(char c)
+void _puts2(char *str)
 {
-static int i;
-static char buf[WRITE_BUF_SIZE];
+	ssize_t num, len;
 
-if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
-{
-write(2, buf, i);
-i = 0;
-}
-if (c != BUF_FLUSH)
-buf[i++] = c;
-return (1);
+	num = _strlen(str);
+	len = write(STDERR_FILENO, str, num);
+	if (len != num)
+	{
+		perror("Fatal Error");
+		exit(1);
+	}
+
 }
 
 /**
- * _putfd - writes the character c to given fd
- * @c: The character to print
- * @fd: The filedescriptor to write to
+ * _uitoa - converts an unsigned int to a string
+ * @count: unsigned int to convert
  *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * Return: pointer to the converted string
  */
-int _putfd(char c, int fd)
+char *_uitoa(unsigned int count)
 {
-static int i;
-static char buf[WRITE_BUF_SIZE];
+	char *numstr;
+	unsigned int tmp, digits;
 
-if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
-{
-write(fd, buf, i);
-i = 0;
-}
-if (c != BUF_FLUSH)
-buf[i++] = c;
-return (1);
-}
-
-/**
- *_putsfd - prints an input string
- * @str: the string to be printed
- * @fd: the filedescriptor to write to
- *
- * Return: the number of chars put
- */
-int _putsfd(char *str, int fd)
-{
-int i = 0;
-
-if (!str)
-return (0);
-while (*str)
-{
-i += _putfd(*str++, fd);
-}
-return (i);
-}
+	tmp = count;
+	for (digits = 0; tmp != 0; digits++)
+		tmp /= 10;
+	numstr = malloc(sizeof(char) * (digits + 1));
+	if (numstr == NULL)
+	{
+		perror("Fatal Error1");
+		exit(127);
+	}
+	numstr[digits] = '\0';
+	for (--digits; count; --digits)
+	{
+		numstr[digits] = (count % 10) + '0';
+		count /= 10;
+	}
+	return (numstr);
 }
